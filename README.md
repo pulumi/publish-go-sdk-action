@@ -28,8 +28,11 @@ This action uses its own isolated checkout of the repository, so any original ch
     version: ${{ steps.version.outputs.version }}
     # Set to "true" to not delete all existing files before copying new source.
     # Including only the SDK files reduces the download for end users.
-    # Default: false
+    # Default: 'false'
     additive: false
+    # Set to "true" to skip running `go get` on the newly pushed tag to ensure it is added to the go module cache.
+    # Default: 'false'
+    skip-go-get: false
 ```
 
 ## Examples

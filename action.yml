@@ -28,6 +28,10 @@ inputs:
       Including only the SDK files reduces the download for end users.
     default: "false"
     required: false
+  skip-go-get:
+    description: Set to "true" to skip running `go get` on the newly pushed tag to ensure it is added to the go module cache.
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -99,3 +103,13 @@ runs:
         working-directory: ${{ runner.temp }}/pulumi-publish-go-sdk-action
         run: |
           git push origin "${{ steps.git_tag.outputs.git_tag }}"
+
+      - name: Update Go package cache
+        if: inputs.skip-go-get != 'true'
+        shell: bash
+        working-directory: ${{ runner.temp }}
+        run: |
+          mkdir pulumi-publish-go-sdk-action-fetch
+          cd pulumi-publish-go-sdk-action-fetch
+          go mod init github.com/pulumi/publish-go-sdk-action/fetch
+          go get github.com/${{ inputs.repository }}${{ inputs.path == '' && '' || format('/{0}', inputs.path) }}@v${{ inputs.version }}
