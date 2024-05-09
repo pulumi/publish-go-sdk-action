@@ -82,7 +82,7 @@ runs:
         if: inputs.additive != 'true'
         working-directory: ${{ runner.temp }}/pulumi-publish-go-sdk-action
         run: |
-          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name README.md ! -name LICENCE -exec rm -r {} +
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name README.md ! -name LICENSE -exec rm -r {} +
           git add .
 
       - name: Ensure path exists
