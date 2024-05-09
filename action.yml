@@ -59,8 +59,15 @@ runs:
         shell: bash
         id: abs_path
         run: |
-          echo -n "abs_path=" >> $GITHUB_OUTPUT
+          echo -n "abs_path=" >> $GITHUB_OUTPUT &&
           realpath "${{ inputs.source }}" >> $GITHUB_OUTPUT
+
+      - name: Calculate major version
+        id: major_version
+        shell: bash
+        run: |
+          echo -n "major_version=" >> $GITHUB_OUTPUT &&
+          echo "${{ inputs.version }}" | cut -d. -f1 >> $GITHUB_OUTPUT
 
       - name: Configure git
         shell: bash
@@ -108,8 +115,10 @@ runs:
         if: inputs.skip-go-get != 'true'
         shell: bash
         working-directory: ${{ runner.temp }}
+        env:
+          MODULE_SUFFIX: ${{ steps.major_version.outputs.major_version > 1 && format('/v{0}', steps.major_version.outputs.major_version) || '' }}
         run: |
           mkdir pulumi-publish-go-sdk-action-fetch
           cd pulumi-publish-go-sdk-action-fetch
           go mod init github.com/pulumi/publish-go-sdk-action/fetch
-          go get github.com/${{ inputs.repository }}${{ inputs.path == '' && '' || format('/{0}', inputs.path) }}@v${{ inputs.version }}
+          go get github.com/${{ inputs.repository }}${{ inputs.path == '' && '' || format('/{0}', inputs.path) }}${{ env.MODULE_SUFFIX }}@v${{ inputs.version }}
