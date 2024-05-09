@@ -13,9 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - id: version
-        uses: pulumi/provider-version-action@v1
-
       - run: mkdir -p sdk
       - run: echo "module github.com/pulumi/publish-go-sdk-action/self-test" > sdk/go.mod
 
@@ -26,5 +23,29 @@ jobs:
           base-ref: ${{ github.sha }}
           source: sdk
           path: self-test
-          version: ${{ steps.version.outputs.version }}
+          version: 1.0.0-alpha.${{ github.run_number }}
           additive: false
+
+      - name: Clean up test tag
+        run: git push origin --delete "self-test/v1.0.0-alpha.${{ github.run_number }}"
+
+  test-publish-v2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: mkdir -p sdk
+      - run: echo "module github.com/pulumi/publish-go-sdk-action/self-test/v2" > sdk/go.mod
+
+      - uses: ./
+        name: Publish Go SDK back to own repository
+        with:
+          repository: ${{ github.repository }}
+          base-ref: ${{ github.sha }}
+          source: sdk
+          path: self-test
+          version: 2.0.0-alpha.${{ github.run_number }}
+          additive: false
+
+      - name: Clean up test tag
+        run: git push origin --delete "self-test/v2.0.0-alpha.${{ github.run_number }}"
