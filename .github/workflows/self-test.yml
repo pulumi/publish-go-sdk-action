@@ -15,6 +15,8 @@ jobs:
 
       - run: mkdir -p sdk
       - run: echo "module github.com/pulumi/publish-go-sdk-action/self-test" > sdk/go.mod
+      - run: echo "package main" > sdk/main.go
+      - run: echo "README" > sdk/README.md
 
       - uses: ./
         name: Publish Go SDK back to own repository
@@ -25,6 +27,9 @@ jobs:
           path: self-test
           version: 1.0.0-alpha.${{ github.run_number }}
           additive: false
+          files: |
+            go.mod
+            **/*.go
 
       - name: Clean up test tag
         run: git push origin --delete "self-test/v1.0.0-alpha.${{ github.run_number }}"

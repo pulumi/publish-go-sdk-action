@@ -33,6 +33,8 @@ This action uses its own isolated checkout of the repository, so any original ch
     # Set to "true" to skip running `go get` on the newly pushed tag to ensure it is added to the go module cache.
     # Default: 'false'
     skip-go-get: false
+    # List of glob patterns to select Go source to be published. Defaults to "**" (all files).
+    files: "**"
 ```
 
 ## Examples
