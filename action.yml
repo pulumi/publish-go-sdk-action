@@ -58,6 +58,14 @@ runs:
         shell: bash
         run: echo "git_tag=${{ inputs.path == '' && format('v{0}', inputs.version) || format('{0}/v{1}', inputs.path, inputs.version) }}" >> $GITHUB_OUTPUT
 
+      - name: Check if already exists
+        id: tag_exists
+        shell: bash
+        working-directory: ${{ runner.temp }}/pulumi-publish-go-sdk-action
+        run: |
+          echo -n "count=" >> $GITHUB_OUTPUT &&
+          git ls-remote --tags origin "${{ steps.git_tag.outputs.git_tag }}" >> $GITHUB_OUTPUT
+
       - name: Calculate absolute source path
         shell: bash
         id: abs_path
@@ -95,6 +103,7 @@ runs:
         run: mkdir -p "${{ inputs.path }}"
 
       - name: Copy files
+        if: steps.tag_exists.outputs.count == 0
         uses: pulumi/glob-action@v1
         with:
           operation: copy
@@ -104,6 +113,7 @@ runs:
 
       - name: Commit
         shell: bash
+        if: steps.tag_exists.outputs.count == 0
         working-directory: ${{ runner.temp }}/pulumi-publish-go-sdk-action
         run: |
           git add .
@@ -112,6 +122,7 @@ runs:
 
       - name: Push
         shell: bash
+        if: steps.tag_exists.outputs.count == 0
         working-directory: ${{ runner.temp }}/pulumi-publish-go-sdk-action
         run: |
           git push origin "${{ steps.git_tag.outputs.git_tag }}"
